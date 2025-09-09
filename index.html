@@ -1,79 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Beauty Zone 💄✨</title>
   <meta charset="UTF-8">
   <meta name="description" content="AI Beautician Website for skin tone detection and beauty tips">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-  <h1>Welcome to Beauty Zone 💄✨</h1>
-  <p>Your AI Beautician Assistant is coming soon...</p>
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
   <title>Beauty Zone 💄✨</title>
-  <meta charset="UTF-8">
-  <meta name="description" content="AI Beautician Website for skin tone detection and beauty tips">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #fff0f5; padding: 50px; }
+    input, button { margin: 10px 0; padding: 10px; font-size: 16px; }
+    img { max-width: 250px; border:1px solid #ccc; padding:5px; border-radius:10px; }
+    #suggestion { font-weight: bold; margin-top: 20px; }
+  </style>
 </head>
 <body>
   <h1>Welcome to Beauty Zone 💄✨</h1>
   <p>Upload your photo to get AI beauty tips:</p>
 
   <input type="file" id="photoInput" accept="image/*">
-  <br><br>
-  <img id="preview" src="" alt="Your Photo" width="200" style="display:none; border:1px solid #ccc; padding:5px;">
-  <br><br>
-  <button id="voiceBtn" style="padding:10px 20px;">Hear Suggestion</button>
-
-  <script>
-    const photoInput = document.getElementById('photoInput');
-    const preview = document.getElementById('preview');
-    const voiceBtn = document.getElementById('voiceBtn');
-
-    // Show uploaded photo
-    photoInput.addEventListener('change', function() {
-      const file = this.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Voice suggestion
-    voiceBtn.addEventListener('click', function() {
-      const msg = new SpeechSynthesisUtterance("Hello! Based on your photo, we will soon suggest the best makeup and skincare tips!");
-      window.speechSynthesis.speak(msg);
-    });
-  </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Beauty Zone 💄✨</title>
-  <meta charset="UTF-8">
-  <meta name="description" content="AI Beautician Website for skin tone detection and beauty tips">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-  <h1>Welcome to Beauty Zone 💄✨</h1>
-  <p>Upload your photo to get AI beauty tips:</p>
-
-  <input type="file" id="photoInput" accept="image/*">
-  <br><br>
-  <img id="preview" src="" alt="Your Photo" width="200" style="display:none; border:1px solid #ccc; padding:5px;">
-  <br><br>
-  <div id="suggestion" style="font-weight:bold;"></div>
   <br>
-  <button id="voiceBtn" style="padding:10px 20px;">Hear Suggestion</button>
+  <img id="preview" src="" alt="Your Photo" style="display:none;">
+  <div id="suggestion">Upload a photo to get your suggestion!</div>
+  <br>
+  <button id="voiceBtn">Hear Suggestion</button>
 
   <script>
     const photoInput = document.getElementById('photoInput');
@@ -90,57 +38,51 @@
       "Dark": {lipstick: "Maroon", skincare: "Brightening serum"}
     };
 
-    // Show uploaded photo
     photoInput.addEventListener('change', function() {
       const file = this.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          preview.src = e.target.result;
-          preview.style.display = 'block';
+      if (!file) return;
 
-          // Create a temporary image to read pixels
-          const img = new Image();
-          img.src = e.target.result;
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
 
-            // Get pixel data
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            let rTotal=0, gTotal=0, bTotal=0, count=0;
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
 
-            for (let i = 0; i < data.length; i += 4*50) { // sample every 50th pixel for speed
-              rTotal += data[i];
-              gTotal += data[i+1];
-              bTotal += data[i+2];
-              count++;
-            }
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          let rTotal=0, gTotal=0, bTotal=0, count=0;
 
-            const rAvg = rTotal/count;
-            const gAvg = gTotal/count;
-            const bAvg = bTotal/count;
-
-            // Simple classification
-            let tone = "";
-            if(rAvg>200 && gAvg>180) tone = "Fair";
-            else if(rAvg>170 && gAvg>140) tone = "Wheatish";
-            else if(rAvg>120 && gAvg>90) tone = "Dusky";
-            else tone = "Dark";
-
-            currentMessage = `Your skin tone is: ${tone}. Recommended lipstick: ${tips[tone].lipstick}, Skincare tip: ${tips[tone].skincare}`;
-            suggestion.textContent = currentMessage;
+          for (let i = 0; i < imageData.length; i += 4*50) {
+            rTotal += imageData[i];
+            gTotal += imageData[i+1];
+            bTotal += imageData[i+2];
+            count++;
           }
+
+          const rAvg = rTotal/count;
+          const gAvg = gTotal/count;
+          const bAvg = bTotal/count;
+
+          let tone = "";
+          if(rAvg>200 && gAvg>180) tone = "Fair";
+          else if(rAvg>170 && gAvg>140) tone = "Wheatish";
+          else if(rAvg>120 && gAvg>90) tone = "Dusky";
+          else tone = "Dark";
+
+          currentMessage = `Your skin tone is: ${tone}. Recommended lipstick: ${tips[tone].lipstick}, Skincare tip: ${tips[tone].skincare}`;
+          suggestion.textContent = currentMessage;
         }
-        reader.readAsDataURL(file);
       }
+      reader.readAsDataURL(file);
     });
 
-    // Voice suggestion
     voiceBtn.addEventListener('click', function() {
       const msg = new SpeechSynthesisUtterance(currentMessage);
       window.speechSynthesis.speak(msg);
@@ -148,5 +90,3 @@
   </script>
 </body>
 </html>
-
-
