@@ -11,3 +11,48 @@
   <p>Your AI Beautician Assistant is coming soon...</p>
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Beauty Zone 💄✨</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="AI Beautician Website for skin tone detection and beauty tips">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1>Welcome to Beauty Zone 💄✨</h1>
+  <p>Upload your photo to get AI beauty tips:</p>
+
+  <input type="file" id="photoInput" accept="image/*">
+  <br><br>
+  <img id="preview" src="" alt="Your Photo" width="200" style="display:none; border:1px solid #ccc; padding:5px;">
+  <br><br>
+  <button id="voiceBtn" style="padding:10px 20px;">Hear Suggestion</button>
+
+  <script>
+    const photoInput = document.getElementById('photoInput');
+    const preview = document.getElementById('preview');
+    const voiceBtn = document.getElementById('voiceBtn');
+
+    // Show uploaded photo
+    photoInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Voice suggestion
+    voiceBtn.addEventListener('click', function() {
+      const msg = new SpeechSynthesisUtterance("Hello! Based on your photo, we will soon suggest the best makeup and skincare tips!");
+      window.speechSynthesis.speak(msg);
+    });
+  </script>
+</body>
+</html>
+
